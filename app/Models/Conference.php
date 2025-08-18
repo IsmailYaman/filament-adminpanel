@@ -11,7 +11,6 @@ use Filament\Forms\Components\MarkdownEditor;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Illuminate\Database\Eloquent\Builder;
-use App\Enums\Status;
 use Filament\Forms\Get;
 use App\Enums\Region;
 use Filament\Forms\Components\Section;
@@ -21,6 +20,7 @@ use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\Actions;
 use Filament\Forms\Components\Actions\Action;
 use Database\Factories\ConferenceFactory;
+use App\Enums\TalkStatus;
 
 class Conference extends Model
 {
@@ -97,9 +97,9 @@ class Conference extends Model
                         ->schema([
                             Select::make('status')
                                 ->columnSpanFull()
-                                ->enum(Status::class)
-                                ->options(Status::class)
-                                ->default(Status::Draft),
+                                ->enum(TalkStatus::class)
+                                ->options(TalkStatus::class)
+                                ->default(TalkStatus::SUBMITTED),
                             Toggle::make('is_published')
                                 ->default(false)
                                 ->columnSpanFull(),

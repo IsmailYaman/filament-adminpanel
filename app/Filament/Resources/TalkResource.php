@@ -6,17 +6,22 @@ use App\Filament\Resources\TalkResource\Pages;
 use App\Models\Talk;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
-use Filament\Tables;
+
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
 use App\Enums\TalkLength;
+use Filament\Notifications\Notification;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Columns\ToggleColumn;
 use Illuminate\Support\Str;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\Filter;
+use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Actions\BulkActionGroup;
+use Filament\Tables\Actions\DeleteBulkAction;
 
 class TalkResource extends Resource
 {
@@ -35,7 +40,7 @@ class TalkResource extends Resource
         return $table
             ->persistFiltersInSession()
             ->filtersTriggerAction(function ($action) {
-                return $action->button()->label('Filters');   
+                return $action->button()->label('Filters');
             })
             ->columns([
                 TextColumn::make('title')
@@ -86,11 +91,36 @@ class TalkResource extends Resource
                     })
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                EditAction::make()
+                    ->slideOver(),
+                Action::make('approve')
+                    ->color('success')
+                    ->icon('heroicon-o-check-circle')
+                    ->action(function (Talk $record) {
+                        $record->approve();
+                    })->after(function () {
+                        Notification::make()->success()
+                            ->duration(1000)
+                            ->title('Talk Approved')
+                            ->body('The talk has been approved')
+                            ->send();
+                    }),
+                Action::make('reject')
+                    ->color('danger')
+                    ->icon('heroicon-o-x-circle')
+                    ->action(function (Talk $record) {
+                        $record->reject();
+                    })->after(function () {
+                        Notification::make()->success()
+                            ->duration(1000)
+                            ->title('Talk Rejected')
+                            ->body('The talk has been rejected')
+                            ->send();
+                    }),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ]);
     }
@@ -107,7 +137,7 @@ class TalkResource extends Resource
         return [
             'index' => Pages\ListTalks::route('/'),
             'create' => Pages\CreateTalk::route('/create'),
-            'edit' => Pages\EditTalk::route('/{record}/edit'),
+            // 'edit' => Pages\EditTalk::route('/{record}/edit'),
         ];
     }
 }

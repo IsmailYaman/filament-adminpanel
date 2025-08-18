@@ -47,4 +47,18 @@ class Talk extends Model
     {
         return $this->belongsToMany(Conference::class);
     }
+
+    public function approve(): void
+    {
+        $this->status = TalkStatus::APPROVED;
+        //email the speakker telling them her talk has been approved
+        // Mail::to($this->speaker->email)->send(new TalkApproved($this));
+        $this->save();
+    }
+
+    public function reject(): void
+    {
+        $this->status = TalkStatus::REJECTED;
+        $this->save();
+    }
 }
